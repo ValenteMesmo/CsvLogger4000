@@ -39,7 +39,8 @@ namespace CsvLogger4000
                 {
                     var logEntry = new LogEntry
                     {
-                        Message = Message
+                        Message = Message,
+                        Id = loggerId
                     };
 
                     var user = GetUserName();
