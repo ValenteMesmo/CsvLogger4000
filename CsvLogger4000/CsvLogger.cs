@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace CsvLogger4000
 {
-    public class CsvLogger
+    public partial class CsvLogger
     {
         private readonly CsvOf<LogEntry> csvFile;
         private readonly Func<string> GetUserName;
@@ -68,6 +68,11 @@ namespace CsvLogger4000
 
             }
             catch { }
+        }
+
+        public bool DebugModeEnabled()
+        {
+            return debugging;
         }
     }
 }
