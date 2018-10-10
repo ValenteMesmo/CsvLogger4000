@@ -9,6 +9,7 @@ namespace CsvLogger4000
         private readonly CsvOf<LogEntry> csvFile;
         private readonly Func<string> GetUserName;
         public string loggerId = Guid.NewGuid().ToString();
+        private static bool debugging = false;
 
         public CsvLogger(string filePath, Func<string> GetUserName = null)
         {
@@ -31,27 +32,42 @@ namespace CsvLogger4000
             });
         }
 
-        public void Log(string Message)
+        public void LogCritical(string message) => Log(message, LogSeverity.Critical);
+        public void LogError(string message) => Log(message, LogSeverity.Error);
+        public void LogWarning(string message) => Log(message, LogSeverity.Warning);
+        public void LogInformational(string message) => Log(message, LogSeverity.Informational);
+        public void LogDebug(string message) { if (debugging) Log(message, LogSeverity.Debug); }
+
+        public void EnableDebugMode() => debugging = true;
+        public void DisableDebugMode() => debugging = false;
+
+        private void Log(string Message, LogSeverity severity)
         {
-            Task.Factory.StartNew(async () =>
+            try
             {
-                try
+                var user = GetUserName();
+
+                Task.Factory.StartNew(async () =>
                 {
-                    var logEntry = new LogEntry
+                    try
                     {
-                        Message = Message,
-                        Id = loggerId
-                    };
+                        var logEntry = new LogEntry
+                        {
+                            Message = Message,
+                            Id = loggerId,
+                            Severity = severity
+                        };
 
-                    var user = GetUserName();
-                    if (string.IsNullOrEmpty(user) == false)
-                        logEntry.User = user;
+                        if (string.IsNullOrEmpty(user) == false)
+                            logEntry.User = user;
 
-                    await csvFile.WriteAsync(logEntry);
-                }
-                catch { }
-            });
+                        await csvFile.WriteAsync(logEntry);
+                    }
+                    catch { }
+                });
 
+            }
+            catch { }
         }
     }
 }
