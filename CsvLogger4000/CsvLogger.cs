@@ -11,9 +11,18 @@ namespace CsvLogger4000
         public string loggerId = Guid.NewGuid().ToString();
         private static bool debugging = false;
 
-        public CsvLogger(string filePath, Func<string> GetUserName = null)
+        public CsvLogger(string directoryPath, string filename, Func<string> GetUserName = null)
         {
-            csvFile = new CsvOf<LogEntry>(filePath);
+            csvFile = new CsvOf<LogEntry>(directoryPath, filename);
+            if (GetUserName == null)
+                this.GetUserName = () => string.Empty;
+            else
+                this.GetUserName = GetUserName;
+        }
+
+        public CsvLogger(string filename, Func<string> GetUserName = null)
+        {
+            csvFile = new CsvOf<LogEntry>(filename);
             if (GetUserName == null)
                 this.GetUserName = () => string.Empty;
             else
